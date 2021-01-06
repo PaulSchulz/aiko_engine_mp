@@ -35,6 +35,8 @@ oled1 = oled.oleds[1]  # Right Eye
 height = oled0.height
 width = oled0.width
 
+period = 1000
+
 # Utilities
 def random(min, max, r_max=255):
     r = uos.urandom(1)[0] & r_max
@@ -51,6 +53,19 @@ def random_position(limit):
 def new_eyes():
     global eye_position
     eye_position = (random_position(width), random_position(height))
+
+def eyes_function(x,y,x0,y0,r):
+    r2 = r*r
+    xr = x - x0
+    yr = y - y0
+
+    ys = math.ceil( math.sqrt( r2 - (x-x0)*(x-x0) ))
+
+    if (xr > x0 - r) and (xr < x0 + r):
+        if ((yr > y0 - ys) and (yr < y0 + ys)):
+            return true
+
+    return false
 
 def display_eyes():
     x0 = 60
