@@ -35,7 +35,7 @@ oled1 = oled.oleds[1]  # Right Eye
 height = oled0.height
 width = oled0.width
 
-period = 1000
+period = 1
 
 # Utilities
 def random(min, max, r_max=255):
@@ -54,35 +54,48 @@ def new_eyes():
     global eye_position
     eye_position = (random_position(width), random_position(height))
 
-def eyes_function(x,y,x0,y0,r):
+# Global time
+ti = 0
+
+def eyes_function(x,y):
+    global ti
+
+    # Geometry
+    x0 = width / 2 + ti % 50 - 25
+    y0 = height / 2
+    r = 20
     r2 = r*r
+
     xr = x - x0
     yr = y - y0
 
-    ys = math.ceil( math.sqrt( r2 - (x-x0)*(x-x0) ))
+    # Inside circle
+    if (x > x0 - r) and (x < x0 + r):
+        ys = math.ceil( math.sqrt( r2 - xr*xr ))
+        if ((y > y0 - ys) and (y < y0 + ys)):
+            return 1
 
-    if (xr > x0 - r) and (xr < x0 + r):
-        if ((yr > y0 - ys) and (yr < y0 + ys)):
-            return true
-
-    return false
+    return 0
 
 def display_eyes():
-    x0 = 60
-    y0 = 40
-    r = 20
-    r2 = r*r
-    for x in range(-1 * r, r):
-        dh = math.ceil( math.sqrt( r2 - x*x ))
-        for y in range(-1 * dh, dh):
-            oled0.pixel(x+x0,y+y0,1)
-            oled1.pixel(x+x0,y+y0,1)
+    global ti
+    for x in range(0, width - 1):
+        for y in range(0, height - 1):
+            if eyes_function(x,y) == 1:
+                oled0.pixel(x,y,1)
+                oled1.pixel(x,y,1)
+            else:
+                 oled0.pixel(x,y,0)
+                 oled1.pixel(x,y,0)
+    ti = ti + 1
 
 def update_eyes():
-    oled0.pixel(0,0,1)
+    display_eyes()
 
 def timer_handler():
     update_eyes()
+    oled0.show()
+    oled1.show()
 
 def run(period=50):
     oled.oleds_clear(0)
